@@ -1,6 +1,6 @@
-# React + Vite
+# BeyondChat Frontend Assignment
 
-# Project Setup locally port 5173
+## Project Setup locally port 5173
 
 ## Installation
 
