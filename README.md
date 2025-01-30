@@ -4,7 +4,7 @@
 
 ## Installation
 
-Deployed Live Link:- [text](https://beyondchats-frontend.vercel.app/)
+Deployed Live Link:- [https://beyondchats-frontend.vercel.app/](https://beyondchats-frontend.vercel.app/)
 
 1. Clone the repository
 ```bash
