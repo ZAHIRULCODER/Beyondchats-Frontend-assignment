@@ -6,7 +6,7 @@
  * isSingleDigit('5')  // true
  * isSingleDigit('a')  // false
  * isSingleDigit('')   // false
- * isSingleDigit('12') // fa lse
+ * isSingleDigit('12') // false
  */
 export const isSingleDigit = (value) => /^\d$/.test(value);
 
