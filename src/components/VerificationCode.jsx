@@ -49,7 +49,7 @@ export default function VerificationCode({ length = 6, onChange }) {
         <input
           key={index}
           ref={(el) => (inputRefs.current[index] = el)}
-          type="tel"
+          type="number"
           maxLength={1}
           value={code[index]}
           onChange={(e) => handleChange(index, e.target.value)}
