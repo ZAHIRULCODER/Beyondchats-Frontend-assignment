@@ -4,6 +4,8 @@
 
 ## Installation
 
+Deployed Live Link:- [text](https://beyondchats-frontend.vercel.app/)
+
 1. Clone the repository
 ```bash
 git clone https://github.com/ZAHIRULCODER/Beyondchats-Frontend-assignment.git
