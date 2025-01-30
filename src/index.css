@@ -6,3 +6,15 @@
   font-weight: 500;
   font-style: normal;
 }
+
+/* Ensure smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+}

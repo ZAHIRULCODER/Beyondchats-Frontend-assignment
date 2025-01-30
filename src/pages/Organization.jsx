@@ -34,7 +34,6 @@ export default function Organization() {
   const [selectedPage, setSelectedPage] = useState(null); // Track expanded page details
   const [pages, setPages] = useState(initialDummyPages); // Scraped pages data
   const [formData, setFormData] = useState({
-    // Form state
     name: "",
     website: "",
     description: "",
