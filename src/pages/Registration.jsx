@@ -159,8 +159,8 @@ export default function Registration() {
             // Step 2: Email Verification
             <div className="space-y-6">
               <p className="text-gray-600 text-center">
-                We've sent a verification code to your email address{" "}
-                <span className="text-indigo-600">{formData.email}</span>.{" "}
+                We have sent a verification code to your email address -{" "}
+                <span className="text-indigo-600">{formData.email}</span>
                 <br /> Please enter it below.
               </p>
 

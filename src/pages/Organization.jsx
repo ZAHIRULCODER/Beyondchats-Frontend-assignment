@@ -93,6 +93,7 @@ export default function Organization() {
         description: meta ? meta.content : "No meta description found",
       }));
     } catch (error) {
+      console.log(error);
       toast.error("Failed to fetch meta description");
     } finally {
       setIsFetchingMeta(false);
