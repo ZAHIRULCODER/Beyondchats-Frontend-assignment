@@ -1,46 +1,78 @@
 import { useRef, useState } from "react";
+import { isSingleDigit, hasNonDigits, filterDigits } from "../lib/validations";
 
+/**
+ * Verification code input component with digit-only validation and auto-focus management
+ * @param {Object} props - Component properties
+ * @param {number} [props.length=6] - Number of input fields to display
+ * @param {Function} [props.onChange] - Callback triggered on code change
+ */
 export default function VerificationCode({ length = 6, onChange }) {
+  // Array state tracking individual digit values
   const [code, setCode] = useState(Array(length).fill(""));
+
+  // Refs array for managing focus between input fields
   const inputRefs = useRef([]);
 
+  /**
+   * Handles individual input changes with validation
+   * @param {number} index - Index of the input field
+   * @param {string} value - New input value
+   */
   const handleChange = (index, value) => {
-    if (value.length > 1) return;
+    // Reject invalid inputs (non-digits or multi-character values)
+    if (!isSingleDigit(value) && value !== "") return;
 
+    // Update code state with new value
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
 
-    if (onChange) {
-      onChange(newCode.join(""));
-    }
+    // Notify parent component of code changes
+    onChange?.(newCode.join(""));
 
+    // Auto-focus next field when valid digit entered
     if (value && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
+  /**
+   * Handles keyboard navigation and input validation
+   * @param {number} index - Current input index
+   * @param {KeyboardEvent} e - Keyboard event
+   */
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+    // Handle backspace navigation
+    if (e.key === "Backspace") {
+      if (!code[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+    // Block non-digit character input
+    else if (e.key.length === 1 && hasNonDigits(e.key)) {
+      e.preventDefault();
     }
   };
 
+  /**
+   * Handles paste events with digit filtering
+   * @param {ClipboardEvent} e - Paste event
+   */
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, length);
-    const newCode = [...code];
+    // Extract and sanitize pasted content
+    const pasted = filterDigits(e.clipboardData.getData("text"));
+    const pastedData = pasted.slice(0, length);
 
-    pastedData.split("").forEach((char, index) => {
-      if (index < length) {
-        newCode[index] = char;
-      }
+    // Update code state with pasted digits
+    const newCode = [...code];
+    pastedData.split("").forEach((char, i) => {
+      if (i < length) newCode[i] = char;
     });
 
     setCode(newCode);
-    if (onChange) {
-      onChange(newCode.join(""));
-    }
+    onChange?.(newCode.join(""));
   };
 
   return (
@@ -50,7 +82,8 @@ export default function VerificationCode({ length = 6, onChange }) {
           key={index}
           ref={(el) => (inputRefs.current[index] = el)}
           type="text"
-          inputMode="numeric"
+          inputMode="numeric" // Shows numeric keyboard on mobile devices
+          pattern="[0-9]*" // Enforces numeric pattern validation
           maxLength={1}
           value={code[index]}
           onChange={(e) => handleChange(index, e.target.value)}

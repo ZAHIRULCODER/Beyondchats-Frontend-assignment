@@ -7,7 +7,9 @@ import { FacebookLogo, LinkedinLogo, TwitterLogo } from "../lib/svg";
 export default function Success() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
+  // Viewport measurement effect
   useEffect(() => {
+    // Set initial window dimensions when component mounts
     setDimensions({
       width: window.innerWidth,
       height: window.innerHeight,

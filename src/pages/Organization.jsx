@@ -15,6 +15,7 @@ import {
 import toast from "react-hot-toast";
 import { initialDummyPages } from "../lib/constants";
 
+// Status color mapping for different scraping states
 const statusColors = {
   completed: "text-green-600",
   scraping: "text-indigo-600",
@@ -22,30 +23,39 @@ const statusColors = {
   error: "text-red-600",
 };
 
+/**
+ * Organization Setup Component
+ * Handles company profile creation and website scraping simulation
+ * Includes form validation, meta description fetching, and real-time scraping status updates
+ */
 export default function Organization() {
   const navigate = useNavigate();
-  const [showPages, setShowPages] = useState(false);
-  const [selectedPage, setSelectedPage] = useState(null);
-  const [pages, setPages] = useState(initialDummyPages);
+  const [showPages, setShowPages] = useState(false); // Toggles between form and results view
+  const [selectedPage, setSelectedPage] = useState(null); // Track expanded page details
+  const [pages, setPages] = useState(initialDummyPages); // Scraped pages data
   const [formData, setFormData] = useState({
+    // Form state
     name: "",
     website: "",
     description: "",
   });
-  const [isFetchingMeta, setIsFetchingMeta] = useState(false);
+  const [isFetchingMeta, setIsFetchingMeta] = useState(false); // Loading state for meta fetch
 
-  // Simulate real-time scraping updates
+  // Simulate real-time scraping progress updates
   useEffect(() => {
-    if (!showPages) return;
+    if (!showPages) return; // Only run when results are shown
 
+    // Simulate real-time progress updates
     const interval = setInterval(() => {
       setPages((prev) =>
         prev.map((page) => {
           if (page.status === "scraping") {
+            // Calculate random progress increment
             const progress = Math.min(page.progress + Math.random() * 10, 100);
             return {
               ...page,
               progress,
+              // Generate random chunk count when complete
               chunks:
                 progress === 100
                   ? Math.floor(Math.random() * 20) + 5
@@ -57,19 +67,24 @@ export default function Organization() {
           return page;
         })
       );
-    }, 3000);
+    }, 3000); // Update every 3 seconds
 
     return () => clearInterval(interval);
   }, [showPages]);
 
-  // Auto-fetch meta description
+  /**
+   * Fetches meta description from website using CORS proxy
+   * @param {string} url - Website URL to fetch metadata from
+   */
   const fetchMetaDescription = async (url) => {
     try {
       setIsFetchingMeta(true);
+      // Use CORS proxy to bypass restrictions
       const res = await fetch(
         `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
       );
       const data = await res.json();
+      // Parse HTML response for meta description
       const parser = new DOMParser();
       const doc = parser.parseFromString(data.contents, "text/html");
       const meta = doc.querySelector('meta[name="description"]');
@@ -91,6 +106,7 @@ export default function Organization() {
     }
   };
 
+  // Form validation and submission handler
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValidUrl(formData.website)) {
@@ -101,15 +117,17 @@ export default function Organization() {
     toast.success("Website analysis started!");
   };
 
+  // URL validation helper
   const isValidUrl = (url) => {
     try {
-      new URL(url);
+      new URL(url); // Native URL validation
       return true;
     } catch {
       return false;
     }
   };
 
+  // Status icon renderer based on scraping state
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
@@ -123,6 +141,7 @@ export default function Organization() {
     }
   };
 
+  // Retry failed scraping attempts
   const handleRetry = (url) => {
     setPages((prev) =>
       prev.map((page) =>
@@ -138,12 +157,14 @@ export default function Organization() {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-xl p-4 md:p-8">
+        {/* Main Form Section */}
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Setup Organization
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
+            {/* Company Name Input */}
             <div className="relative">
               <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
               <input
@@ -157,6 +178,8 @@ export default function Organization() {
                 }
               />
             </div>
+
+            {/* Website URL Input with Meta Fetch */}
             <div className="relative">
               <Globe className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
               <input
@@ -171,8 +194,9 @@ export default function Organization() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, website: e.target.value }))
                 }
-                onBlur={handleWebsiteBlur}
+                onBlur={handleWebsiteBlur} // Trigger meta fetch on blur
               />
+              {/* Meta fetch loading indicator */}
               {isFetchingMeta && (
                 <div
                   className="absolute right-3 top-3.5"
@@ -181,6 +205,8 @@ export default function Organization() {
                 </div>
               )}
             </div>
+
+            {/* Company Description Textarea */}
             <div className="relative">
               <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
               <textarea
@@ -198,6 +224,7 @@ export default function Organization() {
             </div>
           </div>
 
+          {/* Form Submission Button */}
           {!showPages && (
             <button
               type="submit"
@@ -208,11 +235,13 @@ export default function Organization() {
           )}
         </form>
 
+        {/* Scraping Results Section */}
         {showPages && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="mt-8 space-y-6">
+            {/* Pages List */}
             <div className="border rounded-lg divide-y">
               {pages.map((page) => (
                 <motion.div
@@ -223,6 +252,7 @@ export default function Organization() {
                   onClick={() =>
                     setSelectedPage(selectedPage === page.url ? null : page.url)
                   }>
+                  {/* Page URL and Progress */}
                   <div className="flex items-center space-x-2 md:space-x-4">
                     <Globe className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
@@ -244,12 +274,15 @@ export default function Organization() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Status Indicator */}
                   <div
                     className={`flex items-center gap-1.5 md:gap-2 ${
                       statusColors[page.status]
                     }`}>
                     {getStatusIcon(page.status)}
                     <span className="capitalize">{page.status}</span>
+                    {/* Retry Button for Errors */}
                     {page.status === "error" && (
                       <button
                         onClick={(e) => {
@@ -265,6 +298,7 @@ export default function Organization() {
               ))}
             </div>
 
+            {/* Expanded Page Details */}
             <AnimatePresence>
               {selectedPage && (
                 <motion.div
@@ -278,6 +312,27 @@ export default function Organization() {
                       Data Chunks from {selectedPage}
                     </h3>
                     <div className="grid gap-2">
+                      {/* Dummy Content Chunks */}
+                      {/* 1. Create an array of N length where N = number of
+                      chunks for the selected page: - Find the selected page in
+                      the pages array using URL - Use optional chaining (?.) to
+                      safely access chunks property - Fallback to 0 if no chunks
+                      found to prevent errors  
+                      
+                      2. Map over the created array to generate content chunks:
+                      - Using index (_) parameter since array elements are empty
+                      - index (i) will be 0, 1, 2,...N-1 
+
+                      3. Create an animated div for each content chunk:
+                      - Using Framer Motion's motion.div for animations
+                      - Each chunk gets a unique key based on index
+                      - Fade-in animation using opacity
+                      - Styling classes for appearance
+
+                      4. Generate dummy content for each chunk:
+                      - Pass the selected page URL and current index
+                      - Function returns different text variations based on inputs                    
+                      */}
                       {[
                         ...Array(
                           pages.find((p) => p.url === selectedPage)?.chunks || 0
@@ -297,6 +352,7 @@ export default function Organization() {
               )}
             </AnimatePresence>
 
+            {/* Navigation Controls */}
             <div className="md:flex-row flex flex-col-reverse justify-between items-center gap-6">
               <button
                 onClick={() => setShowPages(false)}
@@ -318,6 +374,12 @@ export default function Organization() {
   );
 }
 
+/**
+ * Generates dummy content for scraped page preview
+ * @param {string} pageUrl - URL of the scraped page
+ * @param {number} index - Chunk index
+ * @returns {string} Generated content string
+ */
 function generateDummyContent(pageUrl, index) {
   const lorem = "Lorem ipsum dolor sit amet consectetur adipisicing elit. ";
   const variations = [
