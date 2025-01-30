@@ -248,25 +248,27 @@ export default function Organization() {
                   key={page.url}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="p-2 md:p-4 flex items-center justify-between hover:bg-gray-50 hover:rounded-lg cursor-pointer group"
+                  className="p-2 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between hover:bg-gray-50 hover:rounded-lg cursor-pointer group"
                   onClick={() =>
                     setSelectedPage(selectedPage === page.url ? null : page.url)
                   }>
-                  {/* Page URL and Progress */}
-                  <div className="flex items-center space-x-2 md:space-x-4">
-                    <Globe className="w-5 h-5 text-gray-400" />
-                    <div className="flex-1">
-                      <p className="font-medium">{page.url}</p>
-                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                  {/* Page URL and Progress - Mobile Stacked Layout */}
+                  <div className="flex items-start space-x-2 md:space-x-4 w-full">
+                    <Globe className="w-5 h-5 text-gray-400 mt-1 md:mt-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium break-words text-sm md:text-base">
+                        {page.url}
+                      </p>
+                      <div className="text-sm text-gray-500 flex flex-col md:flex-row md:items-center gap-2 mt-1 md:mt-0">
                         {page.status === "scraping" && (
-                          <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="w-20 md:w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-indigo-600 transition-all duration-300"
                               style={{ width: `${page.progress}%` }}
                             />
                           </div>
                         )}
-                        <span>
+                        <span className="text-xs md:text-sm">
                           {page.status === "error"
                             ? `Error: ${page.error}`
                             : `${page.chunks} data chunks extracted`}
@@ -275,22 +277,23 @@ export default function Organization() {
                     </div>
                   </div>
 
-                  {/* Status Indicator */}
+                  {/* Status Indicator - Right-aligned for mobile */}
                   <div
-                    className={`flex items-center gap-1.5 md:gap-2 ${
+                    className={`flex items-center gap-1.5 md:gap-2 mt-2 md:mt-0 ml-7 md:ml-0 ${
                       statusColors[page.status]
                     }`}>
                     {getStatusIcon(page.status)}
-                    <span className="capitalize">{page.status}</span>
-                    {/* Retry Button for Errors */}
+                    <span className="capitalize text-sm md:text-base">
+                      {page.status}
+                    </span>
                     {page.status === "error" && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRetry(page.url);
                         }}
-                        className="ml-2 p-1 hover:bg-gray-100 rounded-full">
-                        <RefreshCw className="w-4 h-4" />
+                        className="ml-2 p-1.5 hover:bg-gray-100 rounded-full">
+                        <RefreshCw className="w-4.5 h-4.5" />
                       </button>
                     )}
                   </div>

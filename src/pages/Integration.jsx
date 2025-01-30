@@ -1,18 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Code2, MessageSquare, ExternalLink, XIcon } from "lucide-react";
+import { Code2, MessageSquare, XIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import IntegrationCard from "../components/IntegrationCard";
 import IntegrationOptions from "../components/IntegrationOptions";
+import { SendChatLogo } from "../lib/svg";
 
 export default function Integration() {
   const navigate = useNavigate();
   const [showTestChat, setShowTestChat] = useState(false);
+  const [messages, setMessages] = useState([
+    { id: 1, text: "Hello! How can I help you today?", isBot: true },
+    { id: 2, text: "What services do you offer?", isBot: false },
+    {
+      id: 3,
+      text: "We offer a wide range of services including...",
+      isBot: true,
+    },
+  ]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isBotTyping, setIsBotTyping] = useState(false);
+  const chatContainerRef = useRef(null);
 
   const handleTestIntegration = () => {
     toast.success("Integration successful!");
     navigate("/success");
+  };
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isBotTyping]);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!inputMessage.trim()) return;
+
+    const newMessage = {
+      id: messages.length + 1,
+      text: inputMessage,
+      isBot: false,
+    };
+    setMessages([...messages, newMessage]);
+    setInputMessage("");
+
+    setIsBotTyping(true);
+
+    setTimeout(() => {
+      const botResponse = {
+        id: messages.length + 2,
+        text: "This is a simulated response. In real integration, I'll use your API.",
+        isBot: true,
+      };
+      setMessages((prev) => [...prev, botResponse]);
+      setIsBotTyping(false);
+    }, 1000);
   };
 
   const dummyCode = `<script>
@@ -72,37 +121,57 @@ export default function Integration() {
                       BeyondChats Assistant
                     </h4>
                   </div>
-                  <div className="p-4 h-60 md:h-80 overflow-y-auto">
+                  <div
+                    ref={chatContainerRef}
+                    className="p-4 h-60 md:h-80 overflow-y-auto">
                     <div className="space-y-4">
-                      <div className="flex justify-end">
-                        <div className="bg-indigo-100 rounded-lg p-3 max-w-[90%] md:max-w-[80%] text-sm md:text-base">
-                          Hello! How can I help you today?
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.isBot ? "justify-start" : "justify-end"
+                          }`}>
+                          <div
+                            className={`rounded-lg p-3 max-w-[90%] md:max-w-[80%] text-sm md:text-base ${
+                              message.isBot
+                                ? "bg-indigo-100"
+                                : "bg-indigo-600 text-white"
+                            }`}>
+                            {message.text}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex justify-start">
-                        <div className="bg-gray-100 rounded-lg p-3 max-w-[90%] md:max-w-[80%] text-sm md:text-base">
-                          What services do you offer?
+                      ))}
+                      {isBotTyping && (
+                        <div className="flex justify-start">
+                          <div className="rounded-lg p-3 max-w-[90%] md:max-w-[80%] bg-indigo-100">
+                            <div className="flex space-x-2">
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-[bounce_1s_infinite_200ms]" />
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-[bounce_1s_infinite_400ms]" />
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-[bounce_1s_infinite_600ms]" />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <div className="bg-indigo-100 rounded-lg p-3 max-w-[90%] md:max-w-[80%] text-sm md:text-base">
-                          We offer a wide range of services including...
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
-                  <div className="p-4 border-t">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Type your message..."
-                        className="w-full p-2 pr-10 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm md:text-base"
-                      />
-                      <button className="absolute right-2 top-2.5 text-indigo-600 cursor-pointer">
-                        <ExternalLink className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
+                  <form onSubmit={handleSendMessage} className="border-t">
+                    <div className="p-4">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={inputMessage}
+                          onChange={(e) => setInputMessage(e.target.value)}
+                          placeholder="Type your message..."
+                          className="w-full p-2 pr-10 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm md:text-base"
+                        />
+                        <button
+                          type="submit"
+                          className="absolute right-2 top-2.5 text-indigo-600 cursor-pointer hover:text-indigo-800">
+                          <SendChatLogo />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </div>
             </div>
